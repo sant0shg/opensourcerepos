@@ -8,6 +8,30 @@ const app = require('../server');
 
 const { github_credentials, base_url } = require('../app/misc/constants');
 
+function getSampleData(app){
+  return new Promise((resolve, reject) => {
+    try{
+     const Blog = app.models.Blog;
+     const modelQueryOptions = {
+       where: {
+         "status": "published"
+       },
+       include: 'repo',
+       limit: 1
+     };
+     Blog.find(modelQueryOptions, function(err, response) {
+      if(err){
+        reject("Error fetching sample data 1", err);
+      }else{
+        resolve('Sample connection successfull', response);
+      }
+     })
+    }catch(e){
+      reject('Error fetching sample data 2', e)
+    }
+  })
+}
+
 function writeBlogsToFile(app){
   return new Promise(async (resolve, reject)=>{
     try{
@@ -178,8 +202,9 @@ function getBlogsList(app, repoIds){
     const Blog = app.models.Blog;
     const modelQueryOptions = {
       where: {
-        "status": "published"
+        "status": "published",
       },
+      order: "created_at desc",
       include: 'repo',
     }
     if(repoIds){
@@ -277,6 +302,7 @@ module.exports = {
   writeFile,
   getBlogsList,
   getBlog,
+  getSampleData,
   searchRepoLocal,
   getBlogsFromLocalRepos,
   getProfileData,
